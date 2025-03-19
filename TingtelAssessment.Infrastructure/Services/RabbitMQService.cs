@@ -26,7 +26,7 @@ namespace TingtelAssessment.Infrastructure.Services
             _settings = settings.Value;
         }
 
-        public Task PublishAsync<T>(string queueName, T message)
+        public async Task PublishAsync<T>(string queueName, T message)
         {
             var factory = new ConnectionFactory
             {
@@ -35,28 +35,27 @@ namespace TingtelAssessment.Infrastructure.Services
                 Password = _settings.Password
             };
 
-            using var connection = factory.CreateConnectionAsync();
-            using var channel = connection.Result.CreateChannelAsync();
+            using (var connection = await factory.CreateConnectionAsync())
+            using (var channel = await connection.CreateChannelAsync())
+            {
+                //channel.QueueDeclare(
+                //    queue: queueName,
+                //    durable: true,
+                //    exclusive: false,
+                //    autoDelete: false,
+                //    arguments: null);
 
-            channel.QueueDeclare(
-                queue: queueName,
-                durable: true,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null);
+                //var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
 
-            var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
+                //var properties = channel.CreateBasicProperties();
+                //properties.Persistent = true;
 
-            var properties = channel.CreateBasicProperties();
-            properties.Persistent = true;
-
-            channel.BasicPublish(
-                exchange: "",
-                routingKey: queueName,
-                basicProperties: properties,
-                body: body);
-
-            return Task.CompletedTask;
+                //channel.BasicPublish(
+                //    exchange: "",
+                //    routingKey: queueName,
+                //    basicProperties: properties,
+                //    body: body);
+            }
         }
     }
 }

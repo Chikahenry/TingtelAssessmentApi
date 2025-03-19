@@ -1,5 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Microsoft.Extensions.Logging;
+using Serilog.Sinks.File;
 using Serilog.Extensions.Hosting; // Add this using directive
 using System.Reflection;
 using TingtelAssessment.Application.Commands.CreateCommand;
@@ -12,11 +15,11 @@ using TingtelAssessment.Infrastructure.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.File("logs/taskmanagementapi-.log", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
+            .ReadFrom.Configuration(builder.Configuration)
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .WriteTo.File("logs/taskmanagementapi-.log", rollingInterval: RollingInterval.Day)
+            .CreateLogger();
 
 builder.Host.UseSerilog(); // This should work now with the correct using directive
 // Add services to the container.
@@ -47,6 +50,8 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
